@@ -1,0 +1,47 @@
+[package]
+name = "notes-api"
+version = "0.1.0"
+edition = "2024"
+# Edition 2024 was stabilised in Rust 1.85, so that is our floor.
+rust-version = "1.85"
+description = "A heavily documented Notes REST API built with axum, used as a learning vehicle."
+publish = false
+
+[dependencies]
+# HTTP routing and request handling. Default features already include
+# HTTP/1, JSON, query strings, tokio integration and tracing.
+axum = "0.8"
+
+# Derive macros for serialising response bodies (and, from M2, request bodies).
+serde = { version = "1", features = ["derive"] }
+
+# Ergonomic `std::error::Error` derives for our library error types.
+thiserror = "2"
+
+# Async runtime. Features are listed explicitly instead of `full` so that
+# every capability we depend on is visible:
+#   macros          -> #[tokio::main], #[tokio::test], tokio::select!
+#   net             -> tokio::net::TcpListener
+#   rt-multi-thread -> the multi-threaded scheduler
+#   signal          -> Ctrl+C / SIGTERM handling for graceful shutdown
+tokio = { version = "1", features = ["macros", "net", "rt-multi-thread", "signal"] }
+
+# Structured logging facade + subscriber. `env-filter` enables RUST_LOG parsing.
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+[dev-dependencies]
+# `BodyExt::collect` for reading response bodies in tests.
+http-body-util = "0.1"
+# Parsing JSON response bodies in tests.
+serde_json = "1"
+# `ServiceExt::oneshot` lets tests call the Router without opening a socket.
+tower = { version = "0.5", features = ["util"] }
+
+[lints.rust]
+unsafe_code = "forbid"
+# Every public item must be documented: this crate is documented like a public API.
+missing_docs = "warn"
+
+[lints.rustdoc]
+broken_intra_doc_links = "warn"
